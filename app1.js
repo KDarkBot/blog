@@ -18,9 +18,18 @@ var database = firebase.database();
 
 // Reference to the storage
 var storage = firebase.storage();
+var commentsRef = database.ref("comments");
 
 // Reference to the posts node in the database
 var postsRef = database.ref("posts");
+// Function to hide the post detail modal
+function hidePostDetail() {
+  // Get a reference to the post detail element
+  var postDetail = document.getElementById("post-detail");
+
+  // Set the display style of the post detail element to "none"
+  postDetail.style.display = "none";
+}
 
 // Function to add a new post
 function submitPostForm() {
@@ -51,6 +60,34 @@ function submitPostForm() {
     });
   });
 }
+function addCommentForm(postId) {
+  var commentsList = document.getElementById("comments-list-" + postId);
+  var commentInput = document.getElementById("comment-input-" + postId);
+  var addCommentButton = document.getElementById(
+    "add-comment-button-" + postId
+  );
+
+  addCommentButton.addEventListener("click", function () {
+    // Get the content of the new comment
+    var commentContent = commentInput.value;
+
+    // Create a new comment object
+    var newComment = {
+      content: commentContent,
+      timestamp: Date.now(),
+      postId: postId,
+    };
+
+    // Push the new comment object to the comments node in the database
+    commentsRef.push(newComment);
+
+    // Clear the comment input field
+    commentInput.value = "";
+
+    // Scroll to the bottom of the comments list
+    commentsList.scrollTop = commentsList.scrollHeight;
+  });
+}
 
 function showPostForm() {
   document.getElementById("post-form").style.display = "block";
@@ -73,14 +110,18 @@ function displayPosts() {
   // Get all posts from the database and add them to the posts list element
   postsRef.orderByChild("timestamp").on("child_added", function (snapshot) {
     var post = snapshot.val();
+    post.id = snapshot.key; // Add id property to post object
 
     // Create a new post element
     var postElement = document.createElement("div");
     postElement.classList.add("post");
     postElement.innerHTML = `
-          <img src="${post.imageUrl}" />
-          <h3>${post.title}</h3>
-        `;
+      <img src="${post.imageUrl}" />
+      <h3>${post.title}</h3>
+    `;
+
+    // Add the post element to the posts list element
+    postsList.appendChild(postElement);
 
     // Add an event listener to the post element to display the post detail modal
     postElement.addEventListener("click", function () {
@@ -89,25 +130,67 @@ function displayPosts() {
 
       // Set the HTML of the post detail content element
       postDetailContent.innerHTML = `
-            <img src="${post.imageUrl}" />
-            <h3>${post.title}</h3>
-            <p>${post.content}</p>
-            <button onclick="hidePostDetail()">Close</button>
-          `;
+        <img src="${post.imageUrl}" style="width: 758px; height: 427px" />
+        <h3>${post.title}</h3>
+        <p>${post.content}</p>
+        <h4>Comments</h4>
+        <ul id="comments-list"></ul>
+        <form id="add-comment-form">
+          <input type="text" id="comment-input" placeholder="Add a comment...">
+          <button type="submit">Add Comment</button>
+        </form>
+        <button onclick="hidePostDetail()">Close</button>
+      `;
 
       // Show the post detail modal
       document.getElementById("post-detail").style.display = "block";
-    });
 
-    // Add the post element to the posts list element
-    postsList.appendChild(postElement);
+      // Get a reference to the comments list element
+      var commentsList = document.getElementById("comments-list");
+
+      // Remove any existing comments from the comments list element
+      while (commentsList.firstChild) {
+        commentsList.removeChild(commentsList.firstChild);
+      }
+
+      // Get all comments for this post from the database and add them to the comments list element
+      commentsRef
+        .orderByChild("timestamp")
+        .on("child_added", function (snapshot) {
+          var comment = snapshot.val();
+          if (comment.postId === post.id) {
+            var commentElement = document.createElement("li");
+            commentElement.innerText = "익명 : "+comment.content;
+            commentsList.appendChild(commentElement);
+          }
+        });
+
+      // Get a reference to the add comment form
+      var addCommentForm = document.getElementById("add-comment-form");
+
+      // Add an event listener to the add comment form to handle form submission
+      addCommentForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        // Get the content of the new comment
+        var commentContent = document.getElementById("comment-input").value;
+
+        // Create a new comment object
+        var newComment = {
+          content: commentContent,
+          timestamp: Date.now(),
+          postId: post.id,
+        };
+
+        // Push the new comment object to the comments node in the database
+        commentsRef.push(newComment);
+
+        // Clear the comment input field
+        document.getElementById("comment-input").value = "";
+
+        commentsList.scrollTop = commentsList.scrollHeight;
+      });
+    });
   });
 }
-
-// Function to hide the post detail modal
-function hidePostDetail() {
-  document.getElementById("post-detail").style.display = "none";
-}
-
-// Display all posts when the page loads
 displayPosts();
