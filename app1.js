@@ -116,7 +116,7 @@ function displayPosts() {
     var postElement = document.createElement("div");
     postElement.classList.add("post");
     postElement.innerHTML = `
-      <img src="${post.imageUrl}" />
+      <img src="${post.imageUrl}" style="  border-radius: 20px; border: solid black 3px;"/>
       <h3>${post.title}</h3>
     `;
 
@@ -160,7 +160,7 @@ function displayPosts() {
           var comment = snapshot.val();
           if (comment.postId === post.id) {
             var commentElement = document.createElement("li");
-            commentElement.innerText = "익명 : "+comment.content;
+            commentElement.innerText = "익명 : " + comment.content;
             commentsList.appendChild(commentElement);
           }
         });
@@ -182,10 +182,8 @@ function displayPosts() {
           postId: post.id,
         };
 
-        // Push the new comment object to the comments node in the database
         commentsRef.push(newComment);
 
-        // Clear the comment input field
         document.getElementById("comment-input").value = "";
 
         commentsList.scrollTop = commentsList.scrollHeight;

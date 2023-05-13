@@ -1,0 +1,47 @@
+@font-face {
+  font-family: "KBO-Dia-Gothic_bold";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2304-2@1.0/KBO-Dia-Gothic_bold.woff")
+    format("woff");
+  font-weight: 700;
+  font-style: normal;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+#mainnave {
+  width: 100%;
+  height: 50px;
+  background-color: rgb(87, 95, 193);
+  display: flex;
+  font-family: KBO-Dia-Gothic_bold;
+}
+#logo {
+  color: white;
+  margin-top: 8px;
+  margin-left: 5px;
+  width: 30%;
+  height: 100%;
+  font-size: 30px;
+}
+
+#a-container {
+  display: flex;
+  list-style: none;
+  margin-top: 12px;
+  color: white;
+  font-size: 20px;
+}
+#two {
+  padding-left: 60px;
+}
+#three {
+  padding-left: 60px;
+}
+#posts-list {
+  display: flex;
+  text-align: center;
+  align-items: flex-start;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
