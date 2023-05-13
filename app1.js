@@ -115,10 +115,15 @@ function displayPosts() {
     // Create a new post element
     var postElement = document.createElement("div");
     postElement.classList.add("post");
+    var postTitle = post.title;
+    if (postTitle.length > 6) {
+      // Limit the post title to 6 characters
+      postTitle = postTitle.substring(0, 6) + "...";
+    }
     postElement.innerHTML = `
-      <img src="${post.imageUrl}" style="  border-radius: 20px; border: solid black 3px;"/>
-      <h3>${post.title}</h3>
-    `;
+  <img src="${post.imageUrl}" style="border-radius: 20px; border: solid black 3px;"/>
+  <h3>${postTitle}</h3>
+`;
 
     // Add the post element to the posts list element
     postsList.appendChild(postElement);
